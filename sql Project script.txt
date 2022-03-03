@@ -1,0 +1,311 @@
+
+ΚΩΔΙΚΑΣ ΤΗΣ ΒΑΣΗΣ (DDL): 
+
+CREATE TABLE ΠΕΛΑΤΕΣ (
+  ID INTEGER  NOT NULL  ,
+  Επωνυμία VARCHAR(30)    ,
+  Πόλη VARCHAR(30)    ,
+  Περιοχή VARCHAR(30)    ,
+  Οδός VARCHAR(30)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER    ,
+  Σταθερό_τηλέφωνο INTEGER    ,
+  Κινητό_τηλέφωνο INTEGER      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE ΠΡΟΜΗΘΕΥΤΕΣ (
+  ID INTEGER  NOT NULL  ,
+  Επωνυμία VARCHAR(40)    ,
+  Πόλη VARCHAR(30)    ,
+  Περιοχή VARCHAR(30)    ,
+  Οδός VARCHAR(30)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE ΥΠΟΚΑΤΑΣΤΗΜΑ (
+  ID INTEGER  NOT NULL  ,
+  Ονομασία VARCHAR(30)    ,
+  Πόλη VARCHAR(30)    ,
+  Περιοχή VARCHAR(30)    ,
+  Οδός VARCHAR(30)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE ΕΙΔΗ (
+  ID INTEGER  NOT NULL  ,
+  Συνοπτική_περιγραφή VARCHAR(25)    ,
+  Αναλυτική_περιγραφή VARCHAR(60)    ,
+  Κατηγορία_είδους VARCHAR(20)    ,
+  Τρέχουσα_τιμή_αγοράς INTEGER    ,
+  Τρέχουσα_τιμή_πώλησης INTEGER    ,
+  Κατηγορία_ΦΠΑ VARCHAR(20)      ,
+PRIMARY KEY(ID));
+
+
+
+CREATE TABLE ΤΗΛΕΦΩΝΑ_ΥΠΟΚΑΤΑΣΤΗΜΑΤΟΣ (
+  ΥΠΟΚΑΤΑΣΤΗΜΑ_ID INTEGER  NOT NULL  ,
+  Τηλέφωνο INTEGER  NOT NULL    ,
+  FOREIGN KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID)
+    REFERENCES ΥΠΟΚΑΤΑΣΤΗΜΑ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΤΗΛΕΦΩΝΑ_ΥΠΟΚΑΤΑΣΤΗΜΑΤΟΣ_FKIndex1 ON ΤΗΛΕΦΩΝΑ_ΥΠΟΚΑΤΑΣΤΗΜΑΤΟΣ (ΥΠΟΚΑΤΑΣΤΗΜΑ_ID);
+
+
+
+CREATE TABLE ΤΗΛΕΦΩΝΑ_ΠΡΟΜΗΘΕΥΤΩΝ (
+  ΠΡΟΜΗΘΕΥΤΕΣ_ID INTEGER  NOT NULL  ,
+  Τηλέφωνο INTEGER  NOT NULL    ,
+  FOREIGN KEY(ΠΡΟΜΗΘΕΥΤΕΣ_ID)
+    REFERENCES ΠΡΟΜΗΘΕΥΤΕΣ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΤΗΛΕΦΩΝΑ_ΠΡΟΜΗΘΕΥΤΩΝ_FKIndex1 ON ΤΗΛΕΦΩΝΑ_ΠΡΟΜΗΘΕΥΤΩΝ (ΠΡΟΜΗΘΕΥΤΕΣ_ID);
+
+
+
+CREATE TABLE ΥΠΑΛΛΗΛΟΙ (
+  ID INTEGER  NOT NULL  ,
+  ΠΡΟΪΣΤΑΜΕΝΟΣ_ID INTEGER    ,
+  ΥΠΟΚΑΤΑΣΤΗΜΑ_ID INTEGER  NOT NULL  ,
+  Επώνυμο VARCHAR(30)    ,
+  Όνομα VARCHAR(30)    ,
+  Πόλη VARCHAR(30)    ,
+  Περιοχή VARCHAR(30)    ,
+  Οδός VARCHAR(30)    ,
+  Αριθμός INTEGER    ,
+  ΤΚ INTEGER    ,
+  Σταθερό_τηλέφωνο INTEGER    ,
+  Κινητό_τηλέφωνο INTEGER    ,
+  ΑΦΜ INTEGER    ,
+  ΑΜΚΑ INTEGER    ,
+  ΑΤ VARCHAR(10)      ,
+PRIMARY KEY(ID)    ,
+  FOREIGN KEY(ΠΡΟΪΣΤΑΜΕΝΟΣ_ID)
+    REFERENCES ΥΠΑΛΛΗΛΟΙ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID)
+    REFERENCES ΥΠΟΚΑΤΑΣΤΗΜΑ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΥΠΑΛΛΗΛΟΙ_FKIndex2 ON ΥΠΑΛΛΗΛΟΙ (ΠΡΟΪΣΤΑΜΕΝΟΣ_ID);
+CREATE INDEX ΥΠΑΛΛΗΛΟΙ_FKIndex3 ON ΥΠΑΛΛΗΛΟΙ (ΥΠΟΚΑΤΑΣΤΗΜΑ_ID);
+
+
+
+CREATE TABLE ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ (
+  ΥΠΟΚΑΤΑΣΤΗΜΑ_ID INTEGER  NOT NULL  ,
+  ΕΙΔΗ_ID INTEGER  NOT NULL  ,
+  Τρέχουσα_διαθέσιμη_ποσότητα INTEGER      ,
+PRIMARY KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID, ΕΙΔΗ_ID)    ,
+  FOREIGN KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID)
+    REFERENCES ΥΠΟΚΑΤΑΣΤΗΜΑ(ID)
+      ON DELETE RESTRICT
+      ON UPDATE CASCADE,
+  FOREIGN KEY(ΕΙΔΗ_ID)
+    REFERENCES ΕΙΔΗ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΥΠΟΚΑΤΑΣΤΗΜΑ_has_ΕΙΔΗ_FKIndex1 ON ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ (ΥΠΟΚΑΤΑΣΤΗΜΑ_ID);
+CREATE INDEX ΥΠΟΚΑΤΑΣΤΗΜΑ_has_ΕΙΔΗ_FKIndex2 ON ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ (ΕΙΔΗ_ID);
+
+
+
+CREATE TABLE ΑΓΟΡΑ (
+  ID INTEGER  NOT NULL  ,
+  ΥΠΟΚΑΤΑΣΤΗΜΑ_ID INTEGER  NOT NULL  ,
+  ΠΡΟΜΗΘΕΥΤΕΣ_ID INTEGER  NOT NULL  ,
+  ΕΙΔΗ_ID INTEGER  NOT NULL  ,
+  ΥΠΑΛΛΗΛΟΙ_ID INTEGER  NOT NULL  ,
+  Ημερομηνία DATE    ,
+  Ποσότητα_αγοράς INTEGER    ,
+  Τιμή_ΧωρίςΦΠΑ INTEGER    ,
+  Συνολική_αξία_μεΦΠΑ INTEGER      ,
+PRIMARY KEY(ID)        ,
+  FOREIGN KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID)
+    REFERENCES ΥΠΟΚΑΤΑΣΤΗΜΑ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΕΙΔΗ_ID)
+    REFERENCES ΕΙΔΗ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΠΡΟΜΗΘΕΥΤΕΣ_ID)
+    REFERENCES ΠΡΟΜΗΘΕΥΤΕΣ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΥΠΑΛΛΗΛΟΙ_ID)
+    REFERENCES ΥΠΑΛΛΗΛΟΙ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΑΓΟΡΑ_FKIndex1 ON ΑΓΟΡΑ (ΥΠΟΚΑΤΑΣΤΗΜΑ_ID);
+CREATE INDEX ΑΓΟΡΑ_FKIndex2 ON ΑΓΟΡΑ (ΕΙΔΗ_ID);
+CREATE INDEX ΑΓΟΡΑ_FKIndex3 ON ΑΓΟΡΑ (ΠΡΟΜΗΘΕΥΤΕΣ_ID);
+CREATE INDEX ΑΓΟΡΑ_FKIndex4 ON ΑΓΟΡΑ (ΥΠΑΛΛΗΛΟΙ_ID);
+
+
+
+CREATE TABLE ΠΩΛΗΣΗ (
+  ID INTEGER  NOT NULL  ,
+  ΕΙΔΗ_ID INTEGER  NOT NULL  ,
+  ΠΕΛΑΤΕΣ_ID INTEGER  NOT NULL  ,
+  ΥΠΑΛΛΗΛΟΙ_ID INTEGER  NOT NULL  ,
+  ΥΠΟΚΑΤΑΣΤΗΜΑ_ID INTEGER  NOT NULL  ,
+  Ημερομηνία DATE    ,
+  Ποσότητα_πώλησης INTEGER    ,
+  Τιμή_μονάδας_χωρίςΦΠΑ INTEGER    ,
+  Συνολική_αξία_πώλησηςΜΕΦΠΑ INTEGER      ,
+PRIMARY KEY(ID)        ,
+  FOREIGN KEY(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID)
+    REFERENCES ΥΠΟΚΑΤΑΣΤΗΜΑ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΥΠΑΛΛΗΛΟΙ_ID)
+    REFERENCES ΥΠΑΛΛΗΛΟΙ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΠΕΛΑΤΕΣ_ID)
+    REFERENCES ΠΕΛΑΤΕΣ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION,
+  FOREIGN KEY(ΕΙΔΗ_ID)
+    REFERENCES ΕΙΔΗ(ID)
+      ON DELETE NO ACTION
+      ON UPDATE NO ACTION);
+
+
+CREATE INDEX ΠΩΛΗΣΗ_FKIndex1 ON ΠΩΛΗΣΗ (ΥΠΟΚΑΤΑΣΤΗΜΑ_ID);
+CREATE INDEX ΠΩΛΗΣΗ_FKIndex2 ON ΠΩΛΗΣΗ (ΥΠΑΛΛΗΛΟΙ_ID);
+CREATE INDEX ΠΩΛΗΣΗ_FKIndex3 ON ΠΩΛΗΣΗ (ΠΕΛΑΤΕΣ_ID);
+CREATE INDEX ΠΩΛΗΣΗ_FKIndex4 ON ΠΩΛΗΣΗ (ΕΙΔΗ_ID);
+
+
+-- ενδεικτικά, για να εισάγω δεδομένα: 
+INSERT INTO ΥΠΟΚΑΤΑΣΤΗΜΑ
+VALUES ( 1 , "PC MANiA","Αθήνα", "Αμπελόκηποι", "Αδμήτου", 34, 11527) 
+-- Τα υπόλοιπα τα περνάω μέσω excel, λόγω ότι δοκίμαζα πολλές βάσεις, και για εξοικονόμηση χρόνου
+-- Για την ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ, όταν το χαρακτηριστικό τρέχουσα ποσότητα αλλάζει,κάθε φορά θα πρέπει να γίνεται με την εντολή Update 
+Ενδεικτικά: UPDATE ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ
+SET Τρέχουσα_διαθέσιμη_ποσότητα=0
+WHERE ΥΠΟΚΑΤΑΣΤΗΜΑ_ID=4 AND ΕΙΔΗ_ID=11;
+--
+
+
+QUERIES IN DML αντίστοιχα της εργασίας:
+
+ΕΡΩΤΗΜΑ 1: 
+SELECT *
+FROM ΥΠΟΚΑΤΑΣΤΗΜΑ 
+ORDER BY Πόλη ;
+
+ΕΡΩΤΗΜΑ 2: 
+SELECT *
+FROM ΥΠΑΛΛΗΛΟΙ
+WHERE Επώνυμο LIKE "Παπά%"
+ORDER BY Επώνυμο,Όνομα
+
+ΕΡΩΤΗΜΑ 3: 
+SELECT ID,Συνοπτική_περιγραφή,Αναλυτική_περιγραφή,Κατηγορία_είδους
+FROM ΕΙΔΗ
+ORDER BY Συνοπτική_περιγραφή
+
+ΕΡΩΤΗΜΑ 4: 
+SELECT DISTINCT ID ,Συνοπτική_περιγραφή
+FROM ΕΙΔΗ INNER JOIN ΠΩΛΗΣΗ ON 
+ΕΙΔΗ.ID= ΠΩΛΗΣΗ.ΕΙΔΗ_ID
+WHERE Τρέχουσα_τιμή_πώλησης > 100 AND Ημερομηνία >= “2021-01-01”
+
+ΕΡΩΤΗΜΑ 5: 
+SELECT ΥΠΟΚΑΤΑΣΤΗΜΑ.Ονομασία,ΥΠΟΚΑΤΑΣΤΗΜΑ_ID, COUNT(ΥΠΟΚΑΤΑΣΤΗΜΑ_ID) AS "ΠΛΗΘΟΣ ΥΠΑΛΛΗΛΩΝ"
+FROM ΥΠΟΚΑΤΑΣΤΗΜΑ INNER JOIN ΥΠΑΛΛΗΛΟΙ ON
+ΥΠΟΚΑΤΑΣΤΗΜΑ.ID=ΥΠΟΚΑΤΑΣΤΗΜΑ_ID
+GROUP BY ΥΠΟΚΑΤΑΣΤΗΜΑ.Ονομασία, ΥΠΟΚΑΤΑΣΤΗΜΑ_ID
+ORDER BY "ΠΛΗΘΟΣ ΥΠΑΛΛΗΛΩΝ" DESC;
+
+ΕΡΩΤΗΜΑ 6: 
+SELECT Κατηγορία_είδους, COUNT (Κατηγορία_είδους) AS "Πλήθος είδους"
+FROM ΕΙΔΗ 
+GROUP BY Κατηγορία_είδους
+ORDER BY Κατηγορία_είδους;
+
+ΕΡΩΤΗΜΑ 7: 
+SELECT w.ΠΡΟΪΣΤΑΜΕΝΟΣ_ID AS ID, m.Επώνυμο AS Επώνυμο, COUNT (*) AS "Αριθμός υπαλλήλων που επιβλέπει" 
+FROM ΥΠΑΛΛΗΛΟΙ w, ΥΠΑΛΛΗΛΟΙ m 
+WHERE w.ΠΡΟΪΣΤΑΜΕΝΟΣ_ID = m.ID 
+GROUP BY w.ΠΡΟΪΣΤΑΜΕΝΟΣ_ID;
+-- Εδώ κανονικά υπάλληλος με ID=5 λέει ότι επιβλέπει 6 ατόμα καθώς προσμετράει και τον εαυτό του
+-- Είναι το πρόβλημα που δεν μπουρούσα να του βάλω NULL
+
+ΕΡΩΤΗΜΑ 8: 
+SELECT DISTINCT ΕΙΔΗ_ID,Συνοπτική_περιγραφή,Ημερομηνία AS "Ημερομηνία πώλησης",Ποσότητα_πώλησης,Τιμή_μονάδας_χωρίς_ΦΠΑ,Κατηγορία_ΦΠΑ,Συνολική_αξία_πώλησης_με_ΦΠΑ
+FROM ΠΩΛΗΣΗ INNER JOIN ΕΙΔΗ ON
+ΕΙΔΗ_ID=ID
+WHERE Ημερομηνία >= "2021-12-01"
+ORDER BY "Ημερομηνία πώλησης";
+
+ΕΡΩΤΗΜΑ 9: 
+SELECT SUM(Τρέχουσα_διαθέσιμη_ποσότητα * ΕΙΔΗ.Τρέχουσα_τιμή_αγοράς ) AS "Συνολικό τρέχον κόστος ειδών που διαθέτει ο όμιλος"
+FROM ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ INNER JOIN ΕΙΔΗ ON
+ΤΡΕΧΟΥΣΑ_ΠΟΣΟΤΗΤΑ.ΕΙΔΗ_ID=ΕΙΔΗ.ID;
+
+ΕΡΩΤΗΜΑ 10: 
+SELECT ID,Επωνυμία,Κατηγορία_είδους
+FROM ΠΡΟΜΗΘΕΥΤΕΣ INNER JOIN ΕΙΔΗ ON
+ΠΡΟΜΗΘΕΥΤΕΣ.ID=ΕΙΔΗ.ID
+WHERE Κατηγορία_είδους="Ηλεκτρονικά";
+
+ΕΡΩΤΗΜΑ 11: 
+SELECT ID,Επωνυμία,SUM(Συνολική_αξία_πώλησης_με_ΦΠΑ) AS "Μέγιστος τζίρος πελάτη το 2021"
+FROM ΠΕΛΑΤΕΣ INNER JOIN ΠΩΛΗΣΗ ON
+ΠΕΛΑΤΕΣ.ID=ΠΕΛΑΤΕΣ_ID
+WHERE Ημερομηνία > "2021-01-01"
+GROUP BY ID
+ORDER BY "Μέγιστος τζίρος πελάτη το 2021" DESC 
+LIMIT 1;
+
+ΕΡΩΤΗΜΑ 12: 
+SELECT ID,Επώνυμο,Όνομα,SUM(Συνολική_αξία_πώλησης_με_ΦΠΑ) AS "Μέγιστος τζίρος υπαλλήλου"
+FROM ΥΠΑΛΛΗΛΟΙ INNER JOIN ΠΩΛΗΣΗ ON
+ΥΠΑΛΛΗΛΟΙ.ID=ΥΠΑΛΛΗΛΟΙ_ID 
+GROUP BY ID
+ORDER BY "Μέγιστος τζίρος υπαλλήλου" DESC
+LIMIT 1;
+
+ΕΡΩΤΗΜΑ 13: 
+SELECT ID,Ονομασία,SUM(Ποσότητα_πώλησης) AS "Αριθμός πωλήσεων",SUM(Συνολική_αξία_πώλησης_με_ΦΠΑ) AS "Σύνολο πωλήσεων με ΦΠΑ"
+FROM ΥΠΟΚΑΤΑΣΤΗΜΑ INNER JOIN ΠΩΛΗΣΗ ON
+ΥΠΟΚΑΤΑΣΤΗΜΑ.ID=ΥΠΟΚΑΤΑΣΤΗΜΑ_ID
+GROUP BY ID
+ORDER BY "Σύνολο πωλήσεων με ΦΠΑ" DESC;
+
+ΕΡΩΤΗΜΑ 14:
+SELECT SUM(Συνολική_αξία_πώλησηςΜΕΦΠΑ - Συνολική_αξία_μεΦΠΑ) AS "Απόδοση Φόρων"
+FROM ΑΓΟΡΑ INNER JOIN ΠΩΛΗΣΗ ON
+ΑΓΟΡΑ.ID = ΠΩΛΗΣΗ.ID 
+
+
+ΕΡΩΤΗΜΑ 15:
+SELECT SUM(Συνολική_αξία_πώλησηςΜΕΦΠΑ - Τιμή_μονάδας_χωρίςΦΠΑ)  - SUM(Συνολική_αξία_μεΦΠΑ - Τιμή_ΧωρίςΦΠΑ) AS "ΑΠΟΔΟΣΗ ΦΟΡΩΝ ΣΤΗΝ ΕΦΟΡΙΑ"
+FROM ΠΩΛΗΣΗ INNER JOIN ΑΓΟΡΑ ON
+ΠΩΛΗΣΗ.ID = ΑΓΟΡΑ.ID
+
